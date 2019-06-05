@@ -12,14 +12,20 @@ import AppNavigator from './AppNavigator';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import mainReducer from './reducers/mainreducer';
+import { createStackNavigator, createAppContainer } from 'react-navigation';
+import { ThemeProvider } from 'react-native-elements';
 
 const store = createStore(mainReducer);
+
+const AppContainer = createAppContainer(AppNavigator);
 
 export default class App extends Component {
   render() {
     return (
       <Provider store={ store }>
-        <AppNavigator/>
+      	<ThemeProvider>
+        	<AppContainer />
+        </ThemeProvider>
       </Provider>
     );
   }

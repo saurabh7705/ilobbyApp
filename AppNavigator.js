@@ -1,15 +1,18 @@
-import { createStackNavigator } from 'react-navigation';
+import { createStackNavigator, createAppContainer } from 'react-navigation';
 import Home from './screens/Home';
 
 const stackNavigatorConfigs = {
     initialRouteName: "Home",
     mode: "card",
     headerMode: "screen",
-    navigationOptions: {
+    defaultNavigationOptions: {
         headerStyle: {
-            backgroundColor: "#F5F5F5"
+            backgroundColor: "#f4511e"
         },
-        headerTintColor: "#FFF"
+        headerTintColor: "#FFF",
+        headerTitleStyle: {
+            fontWeight: 'bold',
+        }
     },
     cardStyle: {
         backgroundColor: "transparent"

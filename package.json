@@ -4,12 +4,18 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "jest"
+    "test": "jest",
+    "debug": "react-native run-android",
+    "log": "react-native log-android",
+    "reload": "adb shell input keyevent 82",
+    "reconnect": "adb reverse tcp:8081 tcp:8081",
+    "debug": "react-native run-android"
   },
   "dependencies": {
     "react": "16.8.3",
     "react-native": "0.59.8",
     "react-native-elements": "^1.1.0",
+    "react-native-gesture-handler": "^1.2.1",
     "react-native-vector-icons": "^6.4.2",
     "react-navigation": "^3.9.2",
     "react-redux": "^7.0.3",

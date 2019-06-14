@@ -1,5 +1,5 @@
 import React from 'react';
-import { BASE_URL, getToken } from './constants.js';
+import { BASE_URL } from './constants.js';
 import { StyleSheet, Text, View, ScrollView, Picker, ToastAndroid, ActivityIndicator } from 'react-native';
 import { Card } from 'react-native-elements';
 
@@ -16,15 +16,26 @@ export default class Home extends React.Component {
 
   	state = {
   		issues: [],
-  		loaded: false
+  		loaded: false,
+      token: null
   	}
 
   	componentDidMount() {
-  		const token = await this.getToken();
-  		fetch(`${MY_URL}/?auth_token=${token}`).then((response) => {
-  			this.setState({loaded: true, issues: response.issues});
-	    });
+  		this.getToken();
   	}
+
+    getToken = async () => {
+      try {
+        const value = await AsyncStorage.getItem('token')
+        if(value) {
+          this.setState({token: value});
+          fetch(`${MY_URL}/?auth_token=${token}`).then((response) => {
+            this.setState({loaded: true, issues: response.issues});
+          });
+        }
+      } catch(e) {
+      }
+    }
 
   	getName = (issue) => {
   		const t = parseInt(issue.type);
@@ -129,7 +140,7 @@ const styles = StyleSheet.create({
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: center
+    alignItems: 'center'
   },
   container: {
     backgroundColor: '#fff',

@@ -4,7 +4,7 @@ import Issue from './screens/Issue';
 import Dashboard from './screens/Dashboard';
 
 const stackNavigatorConfigs = {
-    initialRouteName: "Issue",
+    initialRouteName: "Home",
     mode: "card",
     headerMode: "screen",
     defaultNavigationOptions: {

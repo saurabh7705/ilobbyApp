@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView, Picker, ToastAndroid, ActivityIndic
 import { connect } from 'react-redux';
 import { Input, ButtonGroup, Button } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
-import { BASE_URL, getToken } from './constants.js';
+import { BASE_URL } from './constants.js';
 import { NavigationActions } from 'react-navigation';
 
 const MARGIN = 16;
@@ -18,7 +18,7 @@ export default class Home extends React.Component {
     header: null
   };
 
-  state = {
+  /*state = {
     initialCall: true,
     loginType: 0,
     email: '',
@@ -30,20 +30,24 @@ export default class Home extends React.Component {
     gender: 0,
     education_level: 1,
     ethnicity: 1
+  }*/
+
+  state = {
+    initialCall: true,
+    loginType: 1,
+    email: 'saurabh@gmail.co',
+    password: '112233',
+    name: 'sasa',
+    age: '23',
+    address: 'asasas',
+    zipcode: '123456',
+    gender: 0,
+    education_level: 1,
+    ethnicity: 1
   }
 
   componentDidMount() {
-    const token = await this.getToken();
-    if(token) {
-      fetch(`${ME_URL}/?auth_token=${token}`).then((response) => {
-        if(response.status == "AUTH_ERROR") {
-          this.setState({initialCall: false});
-        } else {
-          this.setState({initialCall: true});
-          this.props.navigation.navigate("Dashboard");
-        }
-      })
-    }
+    this.getToken();
   }
 
   updateIndex = (selectedIndex) => {
@@ -76,7 +80,11 @@ export default class Home extends React.Component {
       }
     }
 
-    return (this.error != "");
+    if(this.error != "") {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   storeToken = async (token) => {
@@ -84,6 +92,23 @@ export default class Home extends React.Component {
       await AsyncStorage.setItem('token', token)
     } catch (e) {
       // saving error
+    }
+  }
+
+  getToken = async () => {
+    try {
+      const value = await AsyncStorage.getItem('token')
+      if(value) {
+        fetch(`${ME_URL}/?auth_token=${value}`).then((response) => {
+        if(response.status == "AUTH_ERROR") {
+          this.setState({initialCall: false});
+        } else {
+          this.setState({initialCall: true});
+          this.props.navigation.navigate("Dashboard");
+        }
+      })
+      }
+    } catch(e) {
     }
   }
 
@@ -96,12 +121,13 @@ export default class Home extends React.Component {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: {
+        body: JSON.stringify({
           email: this.state.email,
           password: this.state.password,
-        },
+        }),
       })
       .then((response) => {
+        console.log("response", response);
         this.afterResponse(response);
       })
 
@@ -116,10 +142,10 @@ export default class Home extends React.Component {
       fetch(REGISTER_URL, {
         method: 'POST',
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: {
+        body: JSON.stringify({
           "User": {
             email: this.state.email,
             password: this.state.password,
@@ -131,7 +157,7 @@ export default class Home extends React.Component {
             education_level: this.state.education_level,
             gender: this.state.gender
           }
-        },
+        }),
       })
       .then((response) => {
         this.afterResponse(response);
@@ -143,8 +169,12 @@ export default class Home extends React.Component {
   }
 
   afterResponse = (response) => {
-    this.storeToken(response.auth_token);
-    this.props.navigation.navigate("Dashboard");
+    if(response.status == "ERROR") {
+      ToastAndroid.show(response.message[0], ToastAndroid.LONG);
+    } else {
+      this.storeToken(response.auth_token);
+      this.props.navigation.navigate("Dashboard");
+    }
   }
 
   onChange = (n, e) => {
@@ -248,13 +278,12 @@ const styles = StyleSheet.create({
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: center
+    alignItems: 'center'
   },
   container: {
     backgroundColor: '#fff',
     padding: MARGIN_MAIN,
-    backgroundColor: "#FFF",
-    flex: 1
+    backgroundColor: "#FFF"
   },
   input: {
     marginBottom: MARGIN

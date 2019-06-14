@@ -1,10 +1,17 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, Picker } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Picker, ToastAndroid, ActivityIndicator } from 'react-native';
 import { connect } from 'react-redux';
 import { Input, ButtonGroup, Button } from 'react-native-elements';
+import AsyncStorage from '@react-native-community/async-storage';
+import { BASE_URL, getToken } from './constants.js';
+import { NavigationActions } from 'react-navigation';
 
 const MARGIN = 16;
 const MARGIN_MAIN = 24;
+
+const LOGIN_URL = `${BASE_URL}/session/login`
+const REGISTER_URL = `${BASE_URL}/session/create`
+const ME_URL = `${BASE_URL}/site/me`
 
 export default class Home extends React.Component {
   static navigationOptions = {
@@ -12,16 +19,31 @@ export default class Home extends React.Component {
   };
 
   state = {
+    initialCall: true,
     loginType: 0,
     email: '',
     password: '',
-    nam: '',
+    name: '',
     age: '',
     address: '',
     zipcode: '',
     gender: 0,
     education_level: 1,
     ethnicity: 1
+  }
+
+  componentDidMount() {
+    const token = await this.getToken();
+    if(token) {
+      fetch(`${ME_URL}/?auth_token=${token}`).then((response) => {
+        if(response.status == "AUTH_ERROR") {
+          this.setState({initialCall: false});
+        } else {
+          this.setState({initialCall: true});
+          this.props.navigation.navigate("Dashboard");
+        }
+      })
+    }
   }
 
   updateIndex = (selectedIndex) => {
@@ -32,17 +54,102 @@ export default class Home extends React.Component {
     this.setState({gender: selectedIndex})
   }
 
-  login = () => {
+  validate = (for_register) => {
+    this.error = "";
+    if(this.state.email == "") {
+      this.error = "Please enter email"
+    }
+    else if(this.state.password == "") {
+      this.error = "Please enter password"
+    }
+    else {
+      if(for_register) {
+        if(this.state.name == "") {
+          this.error = "Please enter name"
+        } else if (this.state.age == "") {
+          this.error = "Please enter age"
+        } else if (this.state.address == "") {
+          this.error = "Please enter address"
+        } else if (this.state.zipcode == "") {
+          this.error = "Please enter zipcode"
+        }
+      }
+    }
 
+    return (this.error != "");
+  }
+
+  storeToken = async (token) => {
+    try {
+      await AsyncStorage.setItem('token', token)
+    } catch (e) {
+      // saving error
+    }
+  }
+
+  login = () => {
+    if(this.validate()) {
+
+      fetch(LOGIN_URL, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: {
+          email: this.state.email,
+          password: this.state.password,
+        },
+      })
+      .then((response) => {
+        this.afterResponse(response);
+      })
+
+    } else if(this.error) {
+      ToastAndroid.show(this.error, ToastAndroid.LONG);
+    }
   }
 
   register = () => {
+    if(this.validate(true)) {
 
+      fetch(REGISTER_URL, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: {
+          "User": {
+            email: this.state.email,
+            password: this.state.password,
+            name: this.state.name,
+            age: this.state.age,
+            address: this.state.address,
+            zipcode: this.state.zipcode,
+            ethnicity: this.state.ethnicity,
+            education_level: this.state.education_level,
+            gender: this.state.gender
+          }
+        },
+      })
+      .then((response) => {
+        this.afterResponse(response);
+      })
+      
+    } else if(this.error) {
+      ToastAndroid.show(this.error, ToastAndroid.LONG);
+    }
   }
 
-  onChange = (name, e) => {
+  afterResponse = (response) => {
+    this.storeToken(response.auth_token);
+    this.props.navigation.navigate("Dashboard");
+  }
+
+  onChange = (n, e) => {
     this.setState({
-      [name]: e.nativeEvent.text
+      [n]: e.nativeEvent.text
     })
   }
 
@@ -54,78 +161,95 @@ export default class Home extends React.Component {
       }
     };
 
-    return (
-      <ScrollView contentContainerStyle={styles.container}>
-        <ButtonGroup
-          onPress={this.updateIndex}
-          selectedIndex={this.state.loginType}
-          buttons={buttons}
-          buttonStyle={styles.group}
-          containerStyle={{marginBottom: MARGIN_MAIN, borderWidth: 0, width: 220}}
-          containerBorderRadius={0}
-          selectedButtonStyle={styles.selectedBtn}
-          textStyle={styles.textStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          innerBorderStyle={styles.innerBorderStyle}
-        />
-        {this.state.loginType == 0 ? 
-          <View>
-            <Input placeholder='Email' leftIcon={{ ...iconStyle, name: 'envelope' }} keyboardType="email-address" style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.email} onChange={this.onChange.bind(this, 'email')} />
-            <Input placeholder='Password' secureTextEntry={true} leftIcon={{ ...iconStyle, name: 'key' }} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.password} onChange={this.onChange.bind(this, 'password')} />
-            <Button title="Submit" onPress={this.login} containerStyle={styles.btn} />
-          </View>
-          : null }
+    if(!this.state.initialCall) {
+      return (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      )
+    } else {
+      return (
+        <ScrollView contentContainerStyle={styles.container}>
+          <ButtonGroup
+            onPress={this.updateIndex}
+            selectedIndex={this.state.loginType}
+            buttons={buttons}
+            buttonStyle={styles.group}
+            containerStyle={{marginBottom: MARGIN_MAIN, borderWidth: 0, width: 220}}
+            containerBorderRadius={0}
+            selectedButtonStyle={styles.selectedBtn}
+            textStyle={styles.textStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            innerBorderStyle={styles.innerBorderStyle}
+          />
+          {this.state.loginType == 0 ? 
+            <View>
+              <Input placeholder='Email' leftIcon={{ ...iconStyle, name: 'envelope' }} keyboardType="email-address" style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.email} onChange={this.onChange.bind(this, 'email')} />
+              <Input placeholder='Password' secureTextEntry={true} leftIcon={{ ...iconStyle, name: 'key' }} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.password} onChange={this.onChange.bind(this, 'password')} />
+              <Button title="Submit" onPress={this.login} containerStyle={styles.btn} />
+            </View>
+            : null }
 
-        {this.state.loginType == 1 ? 
-          <View>
-            <Input placeholder='Email' leftIcon={{ ...iconStyle, name: 'envelope' }} keyboardType="email-address" style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.email} onChange={this.onChange.bind(this, 'email')} />
-            <Input placeholder='Password' secureTextEntry={true} leftIcon={{ ...iconStyle, name: 'key' }} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.password} onChange={this.onChange.bind(this, 'password')} />
-            <Input placeholder='Name' leftIcon={{ ...iconStyle, name: 'user' }} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.name} onChange={this.onChange.bind(this, 'name')} />
-            <Input placeholder='Age' leftIcon={{ ...iconStyle, name: 'user-plus' }} keyboardType="numeric" style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.age} onChange={this.onChange.bind(this, 'age')} />
-            <ButtonGroup
-              onPress={this.updateGender}
-              selectedIndex={this.state.gender}
-              buttons={['Male', 'Female']}
-              containerStyle={{marginBottom: 20}}
-            />
-            <Input placeholder='Address' leftIcon={{ ...iconStyle, name: 'map-marker' }} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.address} onChange={this.onChange.bind(this, 'address')} />
-            <Input placeholder='Zipcode' leftIcon={{ ...iconStyle, name: 'location-arrow' }} keyboardType="numeric" style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.zipcode} onChange={this.onChange.bind(this, 'zipcode')} />
-            <View style={styles.picker}>
-              <Picker
-                selectedValue={this.state.education_level}
-                prompt="Education Level"
-                onValueChange={(itemValue, itemIndex) =>
-                  this.setState({education_level: itemValue})
-                }>
-                <Picker.Item label="Graduate" value="1" />
-                <Picker.Item label="Post-Graduate" value="2" />
-              </Picker>
+          {this.state.loginType == 1 ? 
+            <View>
+              <Input placeholder='Email' leftIcon={{ ...iconStyle, name: 'envelope' }} keyboardType="email-address" style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.email} onChange={this.onChange.bind(this, 'email')} />
+              <Input placeholder='Password' secureTextEntry={true} leftIcon={{ ...iconStyle, name: 'key' }} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.password} onChange={this.onChange.bind(this, 'password')} />
+              <Input placeholder='Name' leftIcon={{ ...iconStyle, name: 'user' }} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.name} onChange={this.onChange.bind(this, 'name')} />
+              <Input placeholder='Age' leftIcon={{ ...iconStyle, name: 'user-plus' }} keyboardType="numeric" style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.age} onChange={this.onChange.bind(this, 'age')} />
+              <ButtonGroup
+                onPress={this.updateGender}
+                selectedIndex={this.state.gender}
+                buttons={['Male', 'Female']}
+                containerStyle={{marginBottom: 20}}
+              />
+              <Input placeholder='Address' leftIcon={{ ...iconStyle, name: 'map-marker' }} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.address} onChange={this.onChange.bind(this, 'address')} />
+              <Input placeholder='Zipcode' leftIcon={{ ...iconStyle, name: 'location-arrow' }} keyboardType="numeric" style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.zipcode} onChange={this.onChange.bind(this, 'zipcode')} />
+              <View style={styles.picker}>
+                <Picker
+                  selectedValue={this.state.education_level}
+                  prompt="Education Level"
+                  onValueChange={(itemValue, itemIndex) =>
+                    this.setState({education_level: itemValue})
+                  }>
+                  <Picker.Item label="Doctorate & Higher" value="1" />
+                  <Picker.Item label="Master's" value="2" />
+                  <Picker.Item label="Bachelor's" value="3" />
+                  <Picker.Item label="Associate" value="4" />
+                  <Picker.Item label="High School" value="5" />
+                  <Picker.Item label="Professional" value="6" />
+                </Picker>
+              </View>
+              <View style={[styles.picker, {marginBottom: 0}]}>
+                <Picker
+                  selectedValue={this.state.ethnicity}
+                  itemStyle={styles.picker}
+                  prompt="Ethnicity"
+                  onValueChange={(itemValue, itemIndex) =>
+                    this.setState({ethnicity: itemValue})
+                  }>
+                  <Picker.Item label="American Indian" value="1" />
+                  <Picker.Item label="Asian" value="2" />
+                  <Picker.Item label="Black or African American" value="3" />
+                  <Picker.Item label="Hispanic or Latino" value="4" />
+                  <Picker.Item label="Native Hawaiian" value="5" />
+                  <Picker.Item label="White" value="6" />
+                </Picker>
+              </View>
+              <Button title="Submit" onPress={this.register} containerStyle={styles.btn} />
             </View>
-            <View style={[styles.picker, {marginBottom: 0}]}>
-              <Picker
-                selectedValue={this.state.ethnicity}
-                itemStyle={styles.picker}
-                prompt="Ethnicity"
-                onValueChange={(itemValue, itemIndex) =>
-                  this.setState({ethnicity: itemValue})
-                }>
-                <Picker.Item label="American Indian" value="1" />
-                <Picker.Item label="Asian" value="2" />
-                <Picker.Item label="Black or African American" value="3" />
-                <Picker.Item label="Hispanic or Latino" value="4" />
-                <Picker.Item label="Native Hawaiian" value="5" />
-                <Picker.Item label="White" value="6" />
-              </Picker>
-            </View>
-            <Button title="Submit" onPress={this.register} containerStyle={styles.btn} />
-          </View>
-          : null }
-      </ScrollView>
-    );
+            : null }
+        </ScrollView>
+      );
+    }
   }
 }
 
 const styles = StyleSheet.create({
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: center
+  },
   container: {
     backgroundColor: '#fff',
     padding: MARGIN_MAIN,

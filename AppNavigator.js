@@ -1,18 +1,17 @@
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import Home from './screens/Home';
+import Issue from './screens/Issue';
+import Dashboard from './screens/Dashboard';
 
 const stackNavigatorConfigs = {
-    initialRouteName: "Home",
+    initialRouteName: "Issue",
     mode: "card",
     headerMode: "screen",
     defaultNavigationOptions: {
         headerStyle: {
-            backgroundColor: "#f4511e"
+            backgroundColor: "#FFF"
         },
-        headerTintColor: "#FFF",
-        headerTitleStyle: {
-            fontWeight: 'bold',
-        }
+        headerTintColor: "#222"
     },
     cardStyle: {
         backgroundColor: "transparent"
@@ -21,6 +20,8 @@ const stackNavigatorConfigs = {
 
 const AppNavigator = createStackNavigator({
   Home: { screen: Home },
+  Issue: { screen: Issue },
+  Dashboard: { screen: Dashboard },
 }, stackNavigatorConfigs);
 
 export default AppNavigator;

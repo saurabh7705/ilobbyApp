@@ -1,8 +1,9 @@
 import React from 'react';
 import { BASE_URL } from './constants.js';
-import { StyleSheet, View, ScrollView, Picker, ToastAndroid, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ScrollView, Picker, ToastAndroid, ActivityIndicator, TouchableOpacity, Button } from 'react-native';
 import { Card, CheckBox, Icon, Text, Image } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
+import { PieChart } from 'react-native-chart-kit';
 
 const MY_URL = `${BASE_URL}/site/list`
 const FILTER_URL = `${BASE_URL}/site/listFilter`
@@ -11,12 +12,29 @@ const MARGIN = 16;
 const MARGIN_MAIN = 24;
 
 export default class Home extends React.Component {
-	static navigationOptions = {
-    	headerTitle: "Complaints"
-  	};
+    static navigationOptions = ({ navigation }) => {
+      return {
+        title: "Complaints",
+        headerRight: (
+          <TouchableOpacity onPress={() => navigation.navigate('Trends')}>
+            <View style={{color: "#222", backgroundColor: "#f5f5f5", borderRadius: 8, paddingLeft: 16, paddingRight: 16, flexDirection: 'row', alignItems: 'center', height: 40, alignSelf: 'center', marginRight: 16}}>
+              <Icon
+                name='bar-chart'
+                type='font-awesome'
+                size={18} />
+              <Text style={{marginLeft: 10, fontSize: 16}}>Trends</Text>
+            </View>
+          </TouchableOpacity>
+        )
+      }
+    };
 
   	state = {
   		issues: [],
+      zipcode_issues: [],
+      male_issues: [],
+      female_issues: [],
+      location_issues: [],
   		loaded: false,
       token: null,
       zipcode: false,
@@ -37,12 +55,45 @@ export default class Home extends React.Component {
           fetch(`${MY_URL}/?auth_token=${value}`)
           .then((r) => r.json())
           .then((response) => {
-            this.setState({loaded: true, issues: response.issues});
+            this.setState({loaded: true, issues: response.issues, zipcode_issues: response.zipcode_issues, male_issues: response.male_issues, female_issues: response.female_issues}, () => {
+              this.setupPieData();
+            });
           });
         }
       } catch(e) {
         console.log("after response ", e);
       }
+    }
+
+    setupPieData = () => {
+      this.zipcodeChartData = this.singlePieData(this.state.zipcode_issues);
+      this.maleChartData = this.singlePieData(this.state.male_issues);
+      this.femaleChartData = this.singlePieData(this.state.female_issues);
+    }
+
+    getRandomColor = () => {
+      return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
+    }
+
+    singlePieData = (issues) => {
+      let chartTypesSingle = [];
+      let chartTypes = [];
+      issues.map((issue) => {
+        if(chartTypesSingle.indexOf(issue.type) == -1) {
+          chartTypes.push({
+            type: issue.type,
+            count: 1
+          });
+        } else {
+          let indexOfData = chartTypes.findIndex(i => i.type == issue.type);
+          chartTypes[indexOfData].count++;
+        }
+      })
+      chartData = chartTypes.map((i) => {
+        return  { name: this.getName(i.type), complaints: i.count, color: this.getRandomColor(), legendFontColor: '#7F7F7F', legendFontSize: 15 }
+      })
+
+      return chartData;
     }
 
   	getName = (issue) => {
@@ -220,7 +271,7 @@ export default class Home extends React.Component {
                 </View>
               </TouchableOpacity>
 		    		</View>
-            {
+            {/*
               this.state.issueType != "" ? 
               <View>
                 <View style={{backgroundColor: "#f5f5f5", height: 1, marginBottom: 16, marginTop: 10, width: 100}}></View> 
@@ -256,7 +307,7 @@ export default class Home extends React.Component {
                     textStyle={styles.checkTxt}
                   />
                 </View>
-              </View> : null }
+              </View> : null */}
 		    		{this.renderIssues()}
 		    	</ScrollView>
 		    );

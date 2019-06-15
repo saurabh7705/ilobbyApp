@@ -112,7 +112,7 @@ export default class Home extends React.Component {
     }
 
     formatDate = (timestamp) => {
-      let date = new Date(timestamp);
+      let date = new Date(timestamp * 1000);
       var monthNames = [
         "January", "February", "March",
         "April", "May", "June", "July",
@@ -131,19 +131,20 @@ export default class Home extends React.Component {
   		let nodes = null;
 
   		nodes = this.state.issues.map((issue) => {
-        console.log("issue", issue);
         const key = `issue_${issue.id}`;
   			return (
-  				<Card key={key} title={this.getName(issue)} containerStyle={{borderWidth: 1, borderColor: "#f1f1f1", borderRadius: 8}}>
+  				<Card key={key} containerStyle={{borderWidth: 1, borderColor: "#f1f1f1", borderRadius: 8, padding: 0, marginLeft: 0, marginRight: 0}}>
             <Image
-              style={{height: 200, width: '100%'}}
+              style={{height: 200, width: '100%', borderTopLeftRadius: 8, borderTopRightRadius: 8}}
               resizeMode="cover"
               source={{ uri: issue.image_url }}
             />
-            {this.renderNodeSingle('cog', issue.type) : null }
-            {this.renderNodeSingle('map-marker', issue.location)}
-            {this.renderNodeSingle('calendar', this.formatDate(issue.created_at))}
-            { issue.notes ? this.renderNodeSingle('quote-left', issue.notes) : null }
+            <View style={{paddingLeft: 16, paddingRight: 16, paddingTop: 16}}>
+              {this.renderNodeSingle('cog', this.getName(issue))}
+              {this.renderNodeSingle('map-marker', issue.location)}
+              {this.renderNodeSingle('calendar', this.formatDate(issue.created_at))}
+              { issue.notes ? this.renderNodeSingle('quote-left', issue.notes) : null }
+            </View>
 				  </Card>
   			)
   		});
@@ -155,14 +156,14 @@ export default class Home extends React.Component {
   		return nodes;
   	}
 
-    renderNodeSingle = (icon, content, isBold) => {
+    renderNodeSingle = (icon, content, isBold=false) => {
       return (
-        <View style={{marginBottom: 16, flexDirection: 'row'}}>
+        <View style={{marginBottom: 16, flexDirection: 'row', alignItems: 'center'}}>
            <Icon
             name={icon}
             type='font-awesome'
             size={16} />
-          <Text style={{fontSize: isBold ? 16 : 12, marginLeft: 12}}>{content}</Text>
+          <Text style={{fontSize: isBold ? 16 : 14, marginLeft: 12}}>{content}</Text>
         </View>
       ) 
     }
@@ -272,8 +273,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     padding: MARGIN_MAIN,
-    backgroundColor: "#FFF",
-    flex: 1
+    backgroundColor: "#FFF"
   },
   picker: {
     borderColor: '#f1f1f1',

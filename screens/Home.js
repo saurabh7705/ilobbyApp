@@ -101,13 +101,15 @@ export default class Home extends React.Component {
       const value = await AsyncStorage.getItem('token')
       if(value) {
         fetch(`${ME_URL}/?auth_token=${value}`).then((r) => r.json()).then((response) => {
-        if(response.status == "AUTH_ERROR") {
-          this.setState({initialCall: true});
-        } else {
-          //this.setState({initialCall: true});
-          this.gotoDashboard();
-        }
-      })
+          if(response.status == "AUTH_ERROR") {
+            this.setState({initialCall: true});
+          } else {
+            //this.setState({initialCall: true});
+            this.gotoDashboard();
+          }
+        })
+      } else {
+        this.setState({initialCall: true});
       }
     } catch(e) {
     }
@@ -167,7 +169,7 @@ export default class Home extends React.Component {
             zipcode: this.state.zipcode,
             ethnicity: this.state.ethnicity,
             education_level: this.state.education_level,
-            gender: this.state.gender
+            sex: this.state.gender
           }
         }),
       })
@@ -190,6 +192,7 @@ export default class Home extends React.Component {
   }
 
   onChange = (n, e) => {
+    console.log("asfasfaf", n, e.nativeEvent.text);
     this.setState({
       [n]: e.nativeEvent.text
     })

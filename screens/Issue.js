@@ -19,7 +19,7 @@ export default class Issue extends React.Component {
   };
 
   state = {
-    issueType: 0,
+    issueType: 1,
     notes: '',
     location: '',
     ImageSource: null,
@@ -112,7 +112,6 @@ export default class Issue extends React.Component {
           })
         }
       ]).then((resp) => {
-        console.log("asfasafasfa", resp);
         this.setState({overlay: false});
         ToastAndroid.show("Complaint registered successfully", ToastAndroid.LONG);
         this.props.navigation.state.params.onGoBack();
@@ -172,10 +171,10 @@ export default class Issue extends React.Component {
           <Input placeholder='Add a note...' multiline={true} style={styles.input} inputContainerStyle={[styles.inputMain, styles.extraInput]} value={this.state.notes} onChange={this.onChange.bind(this, 'notes')} />
           <Button title="Submit" onPress={this.createIssue} containerStyle={styles.btn} />
         </ScrollView>
-        <Overlay isVisible={this.state.overlay} width={150} height={150} containerStyle={{justifyContent: 'center', alignItems: 'center'}}>
+        <Overlay isVisible={this.state.overlay} width={250} height={130} containerStyle={{justifyContent: 'center', alignItems: 'center'}}>
           <View style={{justifyContent: 'center', alignItems: 'center', padding: MARGIN}}>
             <ActivityIndicator size="large" color="#0000ff" />
-            <Text style={{marginTop: MARGIN}}>Submitting your complaint...</Text>
+            <Text style={{marginTop: MARGIN}}>Submitting...</Text>
           </View>
         </Overlay>
       </KeyboardAvoidingView> 

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Input, ButtonGroup, Button } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
 import { BASE_URL } from './constants.js';
-import { NavigationActions } from 'react-navigation';
+import { StackActions, NavigationActions } from 'react-navigation';
 
 const MARGIN = 16;
 const MARGIN_MAIN = 24;
@@ -18,8 +18,8 @@ export default class Home extends React.Component {
     header: null
   };
 
-  /*state = {
-    initialCall: true,
+  state = {
+    initialCall: false,
     loginType: 0,
     email: '',
     password: '',
@@ -30,10 +30,10 @@ export default class Home extends React.Component {
     gender: 0,
     education_level: 1,
     ethnicity: 1
-  }*/
+  }
 
-  state = {
-    initialCall: true,
+  /*state = {
+    initialCall: false,
     loginType: 1,
     email: 'saurabh@gmail.co',
     password: '112233',
@@ -44,7 +44,7 @@ export default class Home extends React.Component {
     gender: 0,
     education_level: 1,
     ethnicity: 1
-  }
+  }*/
 
   componentDidMount() {
     this.getToken();
@@ -89,9 +89,10 @@ export default class Home extends React.Component {
 
   storeToken = async (token) => {
     try {
-      await AsyncStorage.setItem('token', token)
+      await AsyncStorage.setItem('token', token);
+      this.gotoDashboard();
     } catch (e) {
-      // saving error
+      //
     }
   }
 
@@ -99,17 +100,28 @@ export default class Home extends React.Component {
     try {
       const value = await AsyncStorage.getItem('token')
       if(value) {
-        fetch(`${ME_URL}/?auth_token=${value}`).then((response) => {
+        fetch(`${ME_URL}/?auth_token=${value}`).then((r) => r.json()).then((response) => {
         if(response.status == "AUTH_ERROR") {
-          this.setState({initialCall: false});
-        } else {
           this.setState({initialCall: true});
-          this.props.navigation.navigate("Dashboard");
+        } else {
+          //this.setState({initialCall: true});
+          this.gotoDashboard();
         }
       })
       }
     } catch(e) {
     }
+  }
+
+  gotoDashboard = () => {
+    const resetAction = StackActions.reset({
+      index: 0, // <-- currect active route from actions array
+      actions: [
+        NavigationActions.navigate({ routeName: 'Dashboard' }),
+      ],
+    });
+
+    this.props.navigation.dispatch(resetAction);
   }
 
   login = () => {
@@ -126,9 +138,9 @@ export default class Home extends React.Component {
           password: this.state.password,
         }),
       })
-      .then((response) => {
-        console.log("response", response);
-        this.afterResponse(response);
+      .then((response) => response.json())
+      .then((responseData) => {
+        this.afterResponse(responseData);
       })
 
     } else if(this.error) {
@@ -159,8 +171,9 @@ export default class Home extends React.Component {
           }
         }),
       })
-      .then((response) => {
-        this.afterResponse(response);
+      .then((response) => response.json())
+      .then((responseData) => {
+        this.afterResponse(responseData);
       })
       
     } else if(this.error) {
@@ -173,7 +186,6 @@ export default class Home extends React.Component {
       ToastAndroid.show(response.message[0], ToastAndroid.LONG);
     } else {
       this.storeToken(response.auth_token);
-      this.props.navigation.navigate("Dashboard");
     }
   }
 
@@ -205,7 +217,7 @@ export default class Home extends React.Component {
             selectedIndex={this.state.loginType}
             buttons={buttons}
             buttonStyle={styles.group}
-            containerStyle={{marginBottom: MARGIN_MAIN, borderWidth: 0, width: 220}}
+            containerStyle={{marginBottom: MARGIN_MAIN, borderWidth: 0}}
             containerBorderRadius={0}
             selectedButtonStyle={styles.selectedBtn}
             textStyle={styles.textStyle}

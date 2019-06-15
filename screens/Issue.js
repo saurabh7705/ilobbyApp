@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, Picker, TouchableOpacity, NativeModules, ToastAndroid } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Picker, TouchableOpacity, NativeModules, ToastAndroid, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
 import { connect } from 'react-redux';
 import { BASE_URL } from './constants.js';
-import { Input, ButtonGroup, Button, Icon, Image } from 'react-native-elements';
+import { Input, ButtonGroup, Button, Icon, Image, Overlay } from 'react-native-elements';
 import GooglePlacesInput from './GooglePlacesInput';
 import ImagePicker from 'react-native-image-picker';
+import AsyncStorage from '@react-native-community/async-storage';
 import RNFetchBlob from 'rn-fetch-blob';
 
 const MARGIN = 16;
@@ -24,7 +25,8 @@ export default class Issue extends React.Component {
     ImageSource: null,
     data: null,
     Image_TAG: 'new_img',
-    token: null
+    token: null,
+    overlay: false
   }
 
   componentDidMount() {
@@ -34,10 +36,12 @@ export default class Issue extends React.Component {
   getToken = async () => {
     try {
       const value = await AsyncStorage.getItem('token')
+      console.log("value", value);
       if(value) {
         this.setState({token: value});
       }
     } catch(e) {
+      console.log("value", e);
     }
   }
 
@@ -50,8 +54,6 @@ export default class Issue extends React.Component {
     };
 
     ImagePicker.showImagePicker(options, (response) => {
-      console.log('Response = ', response);
-
       if (response.didCancel) {
         console.log('User cancelled photo picker');
       }
@@ -63,12 +65,9 @@ export default class Issue extends React.Component {
       }
       else {
         let source = { uri: response.uri };
-
         this.setState({
-
           ImageSource: source,
           data: response.data
-
         });
       }
     });
@@ -98,8 +97,10 @@ export default class Issue extends React.Component {
 
   createIssue = () => {
     if(this.validate()) {
-
-      RNFetchBlob.fetch('POST', `${URL}/?auth_token=${token}`, {
+      const url_main = `${URL}/?auth_token=${this.state.token}`;
+      console.log("url_main", url_main);
+      this.setState({overlay: true});
+      RNFetchBlob.fetch('POST', url_main, {
         'Content-Type': 'multipart/form-data',
       }, [
         { name: 'image', filename: 'image.png', type: 'image/png', data: this.state.data },
@@ -111,6 +112,10 @@ export default class Issue extends React.Component {
           })
         }
       ]).then((resp) => {
+        console.log("asfasafasfa", resp);
+        this.setState({overlay: false});
+        ToastAndroid.show("Complaint registered successfully", ToastAndroid.LONG);
+        this.props.navigation.state.params.onGoBack();
         this.props.navigation.goBack();
       });
 
@@ -119,31 +124,15 @@ export default class Issue extends React.Component {
     }
   }
 
-  setLocation = (data, details) => {
-    console.log(data, details);
+  setLocation = (data) => {
+    this.setState({location: data.description});
   }
 
   render() {
     return (
-      <ScrollView contentContainerStyle={styles.container}>
-        {!this.state.ImageSource ? 
-          <TouchableOpacity onPress={this.selectPhotoTapped}>
-            <View style={[styles.inputMain, styles.extraMain]}>
-              <Icon
-                name='image'
-                type='font-awesome'
-                color='#BBB'
-                size={38}
-              />
-              <Text style={styles.add}>Add a photo</Text>
-            </View>
-          </TouchableOpacity> : null }
-        {this.state.ImageSource ? 
-          <TouchableOpacity onPress={this.selectPhotoTapped}>
-            <Image source={{ uri: this.state.ImageSource }} style={{ width: 200, height: 200 }} />
-          </TouchableOpacity> : null }
-        <View>
-          <Text style={styles.addHeader}>Issue Classification</Text>
+      <KeyboardAvoidingView style={{ flex: 1, backgroundColor: "#FFF" }}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <GooglePlacesInput setLocation={this.setLocation} location={this.state.location} />
           <View style={styles.picker}>
             <Picker
               selectedValue={this.state.issueType}
@@ -163,11 +152,33 @@ export default class Issue extends React.Component {
               <Picker.Item label="Police" value="10" />
             </Picker>
           </View>
-        </View>
-        <GooglePlacesInput setLocation={this.setLocation} />
-        <Input placeholder='Add a note...' multiline={true} style={styles.input} inputContainerStyle={[styles.inputMain, styles.extraInput]} value={this.state.notes} onChange={this.onChange.bind(this, 'notes')} />
-        <Button title="Submit" onPress={this.createIssue} containerStyle={styles.btn} />
-      </ScrollView>
+          {!this.state.ImageSource ? 
+            <TouchableOpacity onPress={this.selectPhotoTapped}>
+              <View style={[styles.inputMain, styles.extraMain]}>
+                <Icon
+                  name='image'
+                  type='font-awesome'
+                  color='#BBB'
+                  size={38}
+                />
+                <Text style={styles.add}>Add a photo</Text>
+              </View>
+            </TouchableOpacity> : null }
+          {this.state.ImageSource ? 
+            <TouchableOpacity onPress={this.selectPhotoTapped} style={{marginBottom: MARGIN}}>
+              <Image source={this.state.ImageSource} style={{ height: 200, borderRadius: 8}} />
+              <Text style={{justifyContent: 'flex-end', marginTop: 4}}>Tap to change</Text>
+            </TouchableOpacity> : null }
+          <Input placeholder='Add a note...' multiline={true} style={styles.input} inputContainerStyle={[styles.inputMain, styles.extraInput]} value={this.state.notes} onChange={this.onChange.bind(this, 'notes')} />
+          <Button title="Submit" onPress={this.createIssue} containerStyle={styles.btn} />
+        </ScrollView>
+        <Overlay isVisible={this.state.overlay} width={150} height={150} containerStyle={{justifyContent: 'center', alignItems: 'center'}}>
+          <View style={{justifyContent: 'center', alignItems: 'center', padding: MARGIN}}>
+            <ActivityIndicator size="large" color="#0000ff" />
+            <Text style={{marginTop: MARGIN}}>Submitting your complaint...</Text>
+          </View>
+        </Overlay>
+      </KeyboardAvoidingView> 
     );
   }
 }
@@ -175,9 +186,8 @@ export default class Issue extends React.Component {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-    padding: MARGIN_MAIN,
-    backgroundColor: "#FFF",
-    flex: 1
+    padding: MARGIN,
+    backgroundColor: "#FFF"
   },
   input: {
     marginBottom: MARGIN
@@ -189,11 +199,11 @@ const styles = StyleSheet.create({
     marginBottom: MARGIN
   },
   extraInput: {
-    height: 150,
+    height: 100,
     padding: 12
   },
   extraMain: {
-    height: 200,
+    height: 150,
     justifyContent: 'center',
     alignItems: 'center'
   },
@@ -212,12 +222,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     marginBottom: MARGIN,
-    marginLeft: 10,
-    marginRight: 10
+    marginTop: MARGIN
   },
   btn: {
     width: 150,
     alignSelf: 'center',
-    margin: MARGIN_MAIN
+    marginTop: MARGIN,
+    marginBottom: MARGIN
   }
 });

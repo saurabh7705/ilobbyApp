@@ -12,20 +12,19 @@ var img = require('./w.png');
 const MARGIN = 16;
 const MARGIN_MAIN = 24;
 
-const LOGIN_URL = `${BASE_URL}/session/login`
-const REGISTER_URL = `${BASE_URL}/session/create`
+const UPDATE_URL = `${BASE_URL}/site/update`
 const ME_URL = `${BASE_URL}/site/me`
 
 export default class Home extends React.Component {
-  static navigationOptions = {
-    header: null
+  static navigationOptions = ({ navigation }) => {
+      return {
+        title: "Edit Profile"
+      }
   };
 
   state = {
     initialCall: false,
-    loginType: 0,
-    email: '',
-    password: '',
+    token: '',
     name: '',
     age: '',
     address: '',
@@ -35,52 +34,27 @@ export default class Home extends React.Component {
     ethnicity: 1
   }
 
-  /*state = {
-    initialCall: false,
-    loginType: 1,
-    email: 'saurabh@gmail.co',
-    password: '112233',
-    name: 'sasa',
-    age: '23',
-    address: 'asasas',
-    zipcode: '123456',
-    gender: 0,
-    education_level: 1,
-    ethnicity: 1
-  }*/
-
   componentDidMount() {
     this.getToken();
-  }
-
-  updateIndex = (selectedIndex) => {
-    this.setState({loginType: selectedIndex})
   }
 
   updateGender = (selectedIndex) => {
     this.setState({gender: selectedIndex})
   }
 
-  validate = (for_register) => {
+  validate = () => {
     this.error = "";
     if(this.state.email == "") {
       this.error = "Please enter email"
     }
-    else if(this.state.password == "") {
-      this.error = "Please enter password"
-    }
-    else {
-      if(for_register) {
-        if(this.state.name == "") {
-          this.error = "Please enter name"
-        } else if (this.state.age == "") {
-          this.error = "Please enter age"
-        } else if (this.state.address == "") {
-          this.error = "Please enter address"
-        } else if (this.state.zipcode == "") {
-          this.error = "Please enter zipcode"
-        }
-      }
+    else if(this.state.name == "") {
+      this.error = "Please enter name"
+    } else if (this.state.age == "") {
+      this.error = "Please enter age"
+    } else if (this.state.address == "") {
+      this.error = "Please enter address"
+    } else if (this.state.zipcode == "") {
+      this.error = "Please enter zipcode"
     }
 
     if(this.error != "") {
@@ -90,73 +64,32 @@ export default class Home extends React.Component {
     }
   }
 
-  storeToken = async (token) => {
-    try {
-      await AsyncStorage.setItem('token', token);
-      this.gotoDashboard();
-    } catch (e) {
-      //
-    }
-  }
-
   getToken = async () => {
     try {
       const value = await AsyncStorage.getItem('token')
       if(value) {
         fetch(`${ME_URL}/?auth_token=${value}`).then((r) => r.json()).then((response) => {
-          if(response.status == "AUTH_ERROR") {
-            this.setState({initialCall: true});
-          } else {
-            //this.setState({initialCall: true});
-            setTimeout(this.gotoDashboard, 3000);
-          }
+          this.setState({
+            initialCall: true,
+            token: value,
+            name: response.name,
+            age: response.age,
+            address: response.address,
+            zipcode: response.zipcode,
+            ethnicity: response.ethnicity,
+            education_level: response.education_level,
+            sex: response.gender
+          })
         })
-      } else {
-        this.setState({initialCall: true});
       }
     } catch(e) {
-    }
-  }
-
-  gotoDashboard = () => {
-    const resetAction = StackActions.reset({
-      index: 0, // <-- currect active route from actions array
-      actions: [
-        NavigationActions.navigate({ routeName: 'Dashboard' }),
-      ],
-    });
-
-    this.props.navigation.dispatch(resetAction);
-  }
-
-  login = () => {
-    if(this.validate()) {
-
-      fetch(LOGIN_URL, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: this.state.email,
-          password: this.state.password,
-        }),
-      })
-      .then((response) => response.json())
-      .then((responseData) => {
-        this.afterResponse(responseData);
-      })
-
-    } else if(this.error) {
-      this.showSnack(this.error, true);
     }
   }
 
   register = () => {
     if(this.validate(true)) {
 
-      fetch(REGISTER_URL, {
+      fetch(`${UPDATE_URL}/?auth_token=${this.state.token}`, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -164,8 +97,6 @@ export default class Home extends React.Component {
         },
         body: JSON.stringify({
           "User": {
-            email: this.state.email,
-            password: this.state.password,
             name: this.state.name,
             age: this.state.age,
             address: this.state.address,
@@ -190,8 +121,14 @@ export default class Home extends React.Component {
     if(response.status == "ERROR") {
       this.showSnack(response.message[0], true);
     } else {
-      this.storeToken(response.auth_token);
+      this.showSnack("Profile updated successfully", false);
     }
+  }
+
+  onChange = (n, e) => {
+    this.setState({
+      [n]: e.nativeEvent.text
+    })
   }
 
   showSnack = (msg, error=false) => {
@@ -203,14 +140,7 @@ export default class Home extends React.Component {
     });
   }
 
-  onChange = (n, e) => {
-    this.setState({
-      [n]: e.nativeEvent.text
-    })
-  }
-
   render() {
-    const buttons = ['Login', 'Signup']
     const iconStyle = {
       type: 'font-awesome', color: "#BBB", size: 18, containerStyle: {
         marginRight: 12
@@ -220,10 +150,7 @@ export default class Home extends React.Component {
     if(!this.state.initialCall) {
       return (
         <View style={styles.loaderContainer}>
-          <Image
-            source={img}
-            style={{ width: 200, height: 200 }}
-          />
+          <ActivityIndicator size="large" color="#0000ff" /> 
         </View>
       )
     } else {
@@ -231,30 +158,7 @@ export default class Home extends React.Component {
         <ScrollView 
           keyboardShouldPersistTaps="always"
           contentContainerStyle={styles.container}>
-          <ButtonGroup
-            onPress={this.updateIndex}
-            selectedIndex={this.state.loginType}
-            buttons={buttons}
-            buttonStyle={styles.group}
-            containerStyle={{marginBottom: MARGIN_MAIN, borderWidth: 0}}
-            containerBorderRadius={0}
-            selectedButtonStyle={styles.selectedBtn}
-            textStyle={styles.textStyle}
-            selectedTextStyle={styles.selectedTextStyle}
-            innerBorderStyle={styles.innerBorderStyle}
-          />
-          {this.state.loginType == 0 ? 
             <View>
-              <Input placeholder='Email' leftIcon={{ ...iconStyle, name: 'envelope' }} keyboardType="email-address" style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.email} onChange={this.onChange.bind(this, 'email')} />
-              <Input placeholder='Password' secureTextEntry={true} leftIcon={{ ...iconStyle, name: 'key' }} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.password} onChange={this.onChange.bind(this, 'password')} />
-              <Button title="Submit" onPress={this.login} containerStyle={styles.btn} />
-            </View>
-            : null }
-
-          {this.state.loginType == 1 ? 
-            <View>
-              <Input placeholder='Email' leftIcon={{ ...iconStyle, name: 'envelope' }} keyboardType="email-address" style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.email} onChange={this.onChange.bind(this, 'email')} />
-              <Input placeholder='Password' secureTextEntry={true} leftIcon={{ ...iconStyle, name: 'key' }} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.password} onChange={this.onChange.bind(this, 'password')} />
               <Input placeholder='Name' leftIcon={{ ...iconStyle, name: 'user' }} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.name} onChange={this.onChange.bind(this, 'name')} />
               <Input placeholder='Age' leftIcon={{ ...iconStyle, name: 'user-plus' }} keyboardType="numeric" style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.age} onChange={this.onChange.bind(this, 'age')} />
               <ButtonGroup
@@ -298,7 +202,6 @@ export default class Home extends React.Component {
               </View>
               <Button title="Submit" onPress={this.register} containerStyle={styles.btn} />
             </View>
-            : null }
         </ScrollView>
       );
     }

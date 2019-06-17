@@ -1,4 +1,6 @@
 rootProject.name = 'ilobbyApp'
+include ':react-native-top-snackbar'
+project(':react-native-top-snackbar').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-top-snackbar/android')
 include ':react-native-svg'
 project(':react-native-svg').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-svg/android')
 include ':rn-fetch-blob'

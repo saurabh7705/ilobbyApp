@@ -7,6 +7,7 @@ import GooglePlacesInput from './GooglePlacesInput';
 import ImagePicker from 'react-native-image-picker';
 import AsyncStorage from '@react-native-community/async-storage';
 import RNFetchBlob from 'rn-fetch-blob';
+import TopSnackBar from 'react-native-top-snackbar';
 
 const MARGIN = 16;
 const MARGIN_MAIN = 24;
@@ -113,14 +114,23 @@ export default class Issue extends React.Component {
         }
       ]).then((resp) => {
         this.setState({overlay: false});
-        ToastAndroid.show("Complaint registered successfully", ToastAndroid.LONG);
+        this.showSnack("Complaint registered successfully");
         this.props.navigation.state.params.onGoBack();
         this.props.navigation.goBack();
       });
 
     } else if(this.error) {
-      ToastAndroid.show(this.error, ToastAndroid.LONG);
+      this.showSnack(this.error, true);
     }
+  }
+
+  showSnack = (msg, error=false) => {
+    TopSnackBar.show({
+      message: msg,
+      duration: TopSnackBar.LONG,
+      textColor: '#ffffff',
+      backgroundColor: error ? '#D8493B' : "#08BD80"
+    });
   }
 
   setLocation = (data) => {
@@ -130,7 +140,7 @@ export default class Issue extends React.Component {
   render() {
     return (
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: "#FFF" }}>
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView keyboardShouldPersistTaps="always" contentContainerStyle={styles.container}>
           <GooglePlacesInput setLocation={this.setLocation} location={this.state.location} />
           <View style={styles.picker}>
             <Picker

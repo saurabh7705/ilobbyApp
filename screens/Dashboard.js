@@ -4,8 +4,11 @@ import { StyleSheet, View, ScrollView, Picker, ToastAndroid, ActivityIndicator, 
 import { Card, CheckBox, Icon, Text, Image } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
 import { PieChart } from 'react-native-chart-kit';
+import { StackActions, NavigationActions } from 'react-navigation';
+import ViewMoreText from 'react-native-view-more-text';
 
 const MY_URL = `${BASE_URL}/site/list`
+const LOGOUT_URL = `${BASE_URL}/site/logout`
 const FILTER_URL = `${BASE_URL}/site/listFilter`
 
 const MARGIN = 16;
@@ -16,15 +19,26 @@ export default class Home extends React.Component {
       return {
         title: "Complaints",
         headerRight: (
-          <TouchableOpacity onPress={() => navigation.navigate('Trends')}>
-            <View style={{color: "#222", backgroundColor: "#f5f5f5", borderRadius: 8, paddingLeft: 16, paddingRight: 16, flexDirection: 'row', alignItems: 'center', height: 40, alignSelf: 'center', marginRight: 16}}>
+          <View style={{flexDirection: 'row', marginRight: 24}}>
+            <TouchableOpacity onPress={() => navigation.navigate('Trends')}>
+                <Icon
+                  name='bar-chart'
+                  type='font-awesome'
+                  size={18} />
+            </TouchableOpacity>
+            <TouchableOpacity style={{marginLeft: 24}} onPress={() => navigation.navigate('Profile')}>
               <Icon
-                name='bar-chart'
+                name='user-circle'
                 type='font-awesome'
                 size={18} />
-              <Text style={{marginLeft: 10, fontSize: 16}}>Trends</Text>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+            <TouchableOpacity style={{marginLeft: 24}} onPress={() => navigation.state.params.logout()}>
+              <Icon
+                name='power-off'
+                type='font-awesome'
+                size={18} />
+            </TouchableOpacity>
+          </View>
         )
       }
     };
@@ -45,7 +59,32 @@ export default class Home extends React.Component {
 
   	componentDidMount() {
   		this.getToken();
+      this.props.navigation.setParams({logout: this.logout})
   	}
+
+    logout = () => {
+      fetch(`${LOGOUT_URL}/?auth_token=${this.state.token}`)
+      .then((r) => r.json())
+      .then((response) => {
+        this.removeToken();
+      });
+    }
+
+    removeToken = async () => {
+      try {
+        await AsyncStorage.removeItem('token');
+        const resetAction = StackActions.reset({
+          index: 0, // <-- currect active route from actions array
+          actions: [
+            NavigationActions.navigate({ routeName: 'Home' }),
+          ],
+        });
+
+        this.props.navigation.dispatch(resetAction);
+      } catch(e) {
+        // remove error
+      }
+    }
 
     getToken = async () => {
       try {
@@ -178,6 +217,19 @@ export default class Home extends React.Component {
       return day + ' ' + monthNames[monthIndex] + ' ' + year;
     }
 
+    renderViewMore = (onPress) => {
+      return(
+        <Text style={{color: "#2089dc", paddingLeft: 12}} onPress={onPress}>Read more</Text>
+      )
+    }
+
+
+    renderViewLess = (onPress) => {
+      return(
+        <Text style={{color: "#2089dc", paddingLeft: 12}} onPress={onPress}>Read less</Text>
+      )
+    }
+
   	renderIssues = () => {
   		let nodes = null;
 
@@ -194,7 +246,7 @@ export default class Home extends React.Component {
               {this.renderNodeSingle('cog', this.getName(issue))}
               {this.renderNodeSingle('map-marker', issue.location)}
               {this.renderNodeSingle('calendar', this.formatDate(issue.created_at))}
-              { issue.notes ? this.renderNodeSingle('quote-left', issue.notes) : null }
+              { issue.notes ? this.renderNodeSingle('quote-left', issue.notes, false, true) : null }
             </View>
 				  </Card>
   			)
@@ -207,14 +259,22 @@ export default class Home extends React.Component {
   		return nodes;
   	}
 
-    renderNodeSingle = (icon, content, isBold=false) => {
+    renderNodeSingle = (icon, content, isBold=false, truncate=false) => {
       return (
-        <View style={{marginBottom: 16, flexDirection: 'row', alignItems: 'center'}}>
+        <View style={{marginBottom: 16, flexDirection: 'row', alignItems: truncate ? 'flex-start' : 'center'}}>
            <Icon
             name={icon}
             type='font-awesome'
             size={16} />
-          <Text style={{fontSize: isBold ? 16 : 14, marginLeft: 12}}>{content}</Text>
+            {
+              truncate ? (
+                <ViewMoreText numberOfLines={3} renderViewMore={this.renderViewMore} renderViewLess={this.renderViewLess} textStyle={{fontSize: isBold ? 16 : 14, marginLeft: 12}}>
+                  <Text>{content}</Text>
+                </ViewMoreText>
+              ) : (
+                <Text style={{fontSize: isBold ? 16 : 14, marginLeft: 12}}>{content}</Text>
+              )
+            }
         </View>
       ) 
     }

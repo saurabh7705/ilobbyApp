@@ -3,6 +3,7 @@ package com.ilobbyapp;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.rntopsnackbar.SnackBarPackage;
 import com.horcrux.svg.SvgPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -29,6 +30,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
             new MainReactPackage(),
+            new SnackBarPackage(),
             new SvgPackage(),
             new RNFetchBlobPackage(),
             new ImagePickerPackage(),

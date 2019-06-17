@@ -3,6 +3,7 @@ import Home from './screens/Home';
 import Issue from './screens/Issue';
 import Dashboard from './screens/Dashboard';
 import Trends from './screens/Trends';
+import Profile from './screens/Profile';
 
 const stackNavigatorConfigs = {
     initialRouteName: "Home",
@@ -24,6 +25,7 @@ const AppNavigator = createStackNavigator({
   Issue: { screen: Issue },
   Dashboard: { screen: Dashboard },
   Trends: { screen: Trends },
+  Profile: { screen: Profile },
 }, stackNavigatorConfigs);
 
 export default AppNavigator;

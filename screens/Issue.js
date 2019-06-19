@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, Picker, TouchableOpacity, NativeModules, ToastAndroid, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Picker, TouchableOpacity, NativeModules, ToastAndroid, KeyboardAvoidingView, ActivityIndicator, PermissionsAndroid } from 'react-native';
 import { connect } from 'react-redux';
 import { BASE_URL } from './constants.js';
 import { Input, ButtonGroup, Button, Icon, Image, Overlay } from 'react-native-elements';
@@ -23,11 +23,36 @@ export default class Issue extends React.Component {
     issueType: 1,
     notes: '',
     location: '',
+    place_id: '',
     ImageSource: null,
     data: null,
     Image_TAG: 'new_img',
     token: null,
-    overlay: false
+    overlay: false,
+    showCurrentLoc: false
+  }
+
+  async componentWillMount() {
+    await this.requestLocationPermission();
+  }
+
+  requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          'title': 'Kommunity',
+          'message': 'Kommunity wants access to your location'
+        }
+      )
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        this.setState({showCurrentLoc: true});
+      } else {
+        this.setState({showCurrentLoc: false});
+      }
+    } catch (err) {
+      this.setState({showCurrentLoc: false});
+    }
   }
 
   componentDidMount() {
@@ -109,7 +134,8 @@ export default class Issue extends React.Component {
         { name : 'Issue', data : JSON.stringify({
             type : this.state.issueType,
             location : this.state.location,
-            notes : this.state.notes
+            notes : this.state.notes,
+            place_id: this.state.place_id
           })
         }
       ]).then((resp) => {
@@ -134,14 +160,14 @@ export default class Issue extends React.Component {
   }
 
   setLocation = (data) => {
-    this.setState({location: data.description});
+    this.setState({location: data.description || data.formatted_address, place_id: data.place_id});
   }
 
   render() {
     return (
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: "#FFF" }}>
         <ScrollView keyboardShouldPersistTaps="always" contentContainerStyle={styles.container}>
-          <GooglePlacesInput setLocation={this.setLocation} location={this.state.location} />
+          <GooglePlacesInput setLocation={this.setLocation} location={this.state.location} showCurrentLoc={this.state.showCurrentLoc} />
           <View style={styles.picker}>
             <Picker
               selectedValue={this.state.issueType}
@@ -179,7 +205,7 @@ export default class Issue extends React.Component {
               <Text style={{justifyContent: 'flex-end', marginTop: 4}}>Tap to change</Text>
             </TouchableOpacity> : null }
           <Input placeholder='Add a note...' multiline={true} style={styles.input} inputContainerStyle={[styles.inputMain, styles.extraInput]} value={this.state.notes} onChange={this.onChange.bind(this, 'notes')} />
-          <Button title="Submit" onPress={this.createIssue} containerStyle={styles.btn} />
+          <Button title="Submit" onPress={this.createIssue} containerStyle={styles.btn} buttonStyle={styles.buttonStyle} />
         </ScrollView>
         <Overlay isVisible={this.state.overlay} width={250} height={130} containerStyle={{justifyContent: 'center', alignItems: 'center'}}>
           <View style={{justifyContent: 'center', alignItems: 'center', padding: MARGIN}}>
@@ -238,5 +264,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: MARGIN,
     marginBottom: MARGIN
+  },
+  buttonStyle: {
+    backgroundColor: "#f76054",
+    borderColor: "#f76054"
   }
 });

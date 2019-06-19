@@ -64,6 +64,7 @@
 		CE0F8A678E4847EDA2596FC7 /* libRNFetchBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 98C1AFB24D864A93B27B0028 /* libRNFetchBlob.a */; };
 		BDABDE3B90AA4AA19E6BB325 /* libRNSVG.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E8A989FAE4974ECE9BCB0A9D /* libRNSVG.a */; };
 		DFF0A2078B874C8FB14021E1 /* libRNSVG-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A8695D76B7D7485AACC3B536 /* libRNSVG-tvOS.a */; };
+		B464A480B6E34B8C9236CC05 /* libRNGoogleSignin.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D06F2DC7E5A64DBA8049D235 /* libRNGoogleSignin.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -403,6 +404,8 @@
 		E47FE508F0B043AAB3BBD576 /* RNSVG.xcodeproj */ = {isa = PBXFileReference; name = "RNSVG.xcodeproj"; path = "../node_modules/react-native-svg/ios/RNSVG.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		E8A989FAE4974ECE9BCB0A9D /* libRNSVG.a */ = {isa = PBXFileReference; name = "libRNSVG.a"; path = "libRNSVG.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		A8695D76B7D7485AACC3B536 /* libRNSVG-tvOS.a */ = {isa = PBXFileReference; name = "libRNSVG-tvOS.a"; path = "libRNSVG-tvOS.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		2B63EF43C7494238ABF60253 /* RNGoogleSignin.xcodeproj */ = {isa = PBXFileReference; name = "RNGoogleSignin.xcodeproj"; path = "../node_modules/react-native-google-signin/ios/RNGoogleSignin.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		D06F2DC7E5A64DBA8049D235 /* libRNGoogleSignin.a */ = {isa = PBXFileReference; name = "libRNGoogleSignin.a"; path = "libRNGoogleSignin.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -438,6 +441,7 @@
 				5CEA309658C844E8AAF7CF69 /* libRNImagePicker.a in Frameworks */,
 				CE0F8A678E4847EDA2596FC7 /* libRNFetchBlob.a in Frameworks */,
 				BDABDE3B90AA4AA19E6BB325 /* libRNSVG.a in Frameworks */,
+				B464A480B6E34B8C9236CC05 /* libRNGoogleSignin.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -637,6 +641,7 @@
 				A6D3D14513164E0AA7F4CBCB /* RNImagePicker.xcodeproj */,
 				352FF965091249529549E38B /* RNFetchBlob.xcodeproj */,
 				E47FE508F0B043AAB3BBD576 /* RNSVG.xcodeproj */,
+				2B63EF43C7494238ABF60253 /* RNGoogleSignin.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -1313,6 +1318,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1323,6 +1329,7 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-google-signin/ios/RNGoogleSignin",
 				);
 			};
 			name = Debug;
@@ -1354,6 +1361,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1364,6 +1372,7 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-google-signin/ios/RNGoogleSignin",
 				);
 			};
 			name = Release;
@@ -1393,6 +1402,7 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-google-signin/ios/RNGoogleSignin",
 				);
 			};
 			name = Debug;
@@ -1421,6 +1431,7 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-google-signin/ios/RNGoogleSignin",
 				);
 			};
 			name = Release;
@@ -1460,6 +1471,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1470,6 +1482,7 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-google-signin/ios/RNGoogleSignin",
 				);
 			};
 			name = Debug;
@@ -1509,6 +1522,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1519,6 +1533,7 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-google-signin/ios/RNGoogleSignin",
 				);
 			};
 			name = Release;
@@ -1557,6 +1572,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1567,6 +1583,7 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-google-signin/ios/RNGoogleSignin",
 				);
 			};
 			name = Debug;
@@ -1605,6 +1622,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1615,6 +1633,7 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-google-signin/ios/RNGoogleSignin",
 				);
 			};
 			name = Release;

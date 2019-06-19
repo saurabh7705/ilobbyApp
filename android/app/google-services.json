@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "951779765729",
+    "firebase_url": "https://complaint-box-1560488682586.firebaseio.com",
+    "project_id": "complaint-box-1560488682586",
+    "storage_bucket": "complaint-box-1560488682586.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:951779765729:android:c202e8cf7f57b6fd",
+        "android_client_info": {
+          "package_name": "com.ilobbyapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "951779765729-h3vj1ndm9fksncud2bp01n7bsi7b9kc1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDybefFn4qPSbZ1kaXtgvnXKimIlec49F4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "951779765729-h3vj1ndm9fksncud2bp01n7bsi7b9kc1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

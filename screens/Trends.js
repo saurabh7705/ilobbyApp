@@ -127,7 +127,7 @@ export default class Home extends React.Component {
       }
       return (
         <View style={{paddingTop: 16, paddingBottom: 16, backgroundColor: "#fafafa", marginBottom: 8, alignItems: 'center'}}>
-          <Text style={{fontWeight: '600', fontSize: 18, marginBottom: 12, color: "#222"}}>{heading}</Text>
+          <Text style={{fontFamily: 'sans-serif-medium', fontSize: 18, marginBottom: 12, color: "#f76054"}}>{heading}</Text>
           <PieChart
               data={data}
               width={300}

@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { PieChart } from 'react-native-chart-kit';
 import { StackActions, NavigationActions } from 'react-navigation';
 import ViewMoreText from 'react-native-view-more-text';
+import Drawer from './Drawer';
 
 const MY_URL = `${BASE_URL}/site/list`
 const LOGOUT_URL = `${BASE_URL}/site/logout`
@@ -15,9 +16,9 @@ const MARGIN = 16;
 const MARGIN_MAIN = 24;
 
 export default class Home extends React.Component {
-    static navigationOptions = ({ navigation }) => {
+    /*static navigationOptions = ({ navigation }) => {
       return {
-        title: "Complaints",
+        title: "Home",
         headerRight: (
           <View style={{flexDirection: 'row', marginRight: 24}}>
             <TouchableOpacity onPress={() => navigation.navigate('Trends')}>
@@ -41,7 +42,13 @@ export default class Home extends React.Component {
           </View>
         )
       }
-    };
+    };*/
+
+    static navigationOptions = ({navigation}) => {
+      return {
+        header: null
+      }
+    }
 
   	state = {
   		issues: [],
@@ -288,17 +295,17 @@ export default class Home extends React.Component {
       })
     }
 
-  	render() {
-  		if(!this.state.loaded) {
-	      return (
-	        <View style={styles.loaderContainer}>
-	          <ActivityIndicator size="large" color="#0000ff" />
-	        </View>
-	      )
-	    } else {
-	    	return (
-		    	<ScrollView contentContainerStyle={styles.container}>
-		    		<View style={{marginBottom: 12, flexDirection: 'row', justifyContent: 'space-between'}}>
+    renderMain = () => {
+      if(!this.state.loaded) {
+        return (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        )
+      } else {
+        return (
+          <ScrollView contentContainerStyle={styles.container}>
+            <View style={{marginBottom: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
               <View style={styles.picker}>
                 <Picker
                   selectedValue={this.state.issueType}
@@ -322,15 +329,16 @@ export default class Home extends React.Component {
                 </Picker>
               </View>
               <TouchableOpacity onPress={this.reportIssue}>
-                <View style={{color: "#222", backgroundColor: "#f5f5f5", borderRadius: 8, paddingLeft: 16, paddingRight: 16, flexDirection: 'row', alignItems: 'center', height: 50, alignSelf: 'center'}}>
+                <View style={{color: "#222", backgroundColor: "#FFF", borderWidth: 1, borderColor: "#f76054", borderRadius: 8, paddingLeft: 16, paddingRight: 16, flexDirection: 'row', alignItems: 'center', height: 48, alignSelf: 'center'}}>
                   <Icon
                     name='flag'
                     type='font-awesome'
+                    color={"#f76054"}
                     size={18} />
-    		    			<Text style={{marginLeft: 10, fontSize: 16}}>Report</Text>
+                  <Text style={{marginLeft: 10, fontSize: 16, color: "#f76054"}}>Report</Text>
                 </View>
               </TouchableOpacity>
-		    		</View>
+            </View>
             {/*
               this.state.issueType != "" ? 
               <View>
@@ -368,10 +376,18 @@ export default class Home extends React.Component {
                   />
                 </View>
               </View> : null */}
-		    		{this.renderIssues()}
-		    	</ScrollView>
-		    );
-	    }
+            {this.renderIssues()}
+          </ScrollView>
+        );
+      }
+    }
+
+  	render() {
+  		return (
+        <Drawer title="Complaints" navigation={this.props.navigation} logout={this.logout}>
+          {this.renderMain()}
+        </Drawer>
+      )
   	}
 }
 

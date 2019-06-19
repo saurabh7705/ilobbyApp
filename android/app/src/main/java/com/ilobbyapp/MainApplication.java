@@ -3,6 +3,7 @@ package com.ilobbyapp;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import co.apptailor.googlesignin.RNGoogleSigninPackage;
 import com.rntopsnackbar.SnackBarPackage;
 import com.horcrux.svg.SvgPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
@@ -30,6 +31,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
             new MainReactPackage(),
+            new RNGoogleSigninPackage(),
             new SnackBarPackage(),
             new SvgPackage(),
             new RNFetchBlobPackage(),

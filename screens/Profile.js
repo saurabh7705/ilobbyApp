@@ -165,6 +165,8 @@ export default class Home extends React.Component {
                 onPress={this.updateGender}
                 selectedIndex={this.state.gender}
                 buttons={['Male', 'Female']}
+                selectedButtonStyle={{backgroundColor: "#f76054", borderColor: "#f76054"}}
+                selectedTextStyle={{color: "#FFF"}}
                 containerStyle={{marginBottom: 20}}
               />
               <Input placeholder='Address' leftIcon={{ ...iconStyle, name: 'map-marker' }} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.address} onChange={this.onChange.bind(this, 'address')} />
@@ -200,7 +202,7 @@ export default class Home extends React.Component {
                   <Picker.Item label="White" value="6" />
                 </Picker>
               </View>
-              <Button title="Submit" onPress={this.register} containerStyle={styles.btn} />
+              <Button title="Submit" onPress={this.register} containerStyle={styles.btn} buttonStyle={styles.buttonStyle} />
             </View>
         </ScrollView>
       );
@@ -261,5 +263,9 @@ const styles = StyleSheet.create({
   },
   innerBorderStyle: {
     width: 0
+  },
+  buttonStyle: {
+    backgroundColor: "#f76054",
+    borderColor: "#f76054"
   }
 });

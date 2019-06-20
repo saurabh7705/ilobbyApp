@@ -96,7 +96,7 @@ export default class Drawer extends Component{
 
   renderLeft = () => {
     return (
-      <View style={{flexDirection: 'row', paddingLeft: 16, alignItems: 'center'}}>
+      <View style={{flexDirection: 'row', paddingLeft: 16, alignItems: 'center', flex: 1}}>
           <TouchableOpacity style={{marginRight: 16}} onPress={this.open}>
             <Icon
               name='bars'
@@ -105,6 +105,16 @@ export default class Drawer extends Component{
               size={28} />
           </TouchableOpacity>
           <Text style={{fontSize: 18, color: "#FFF", fontFamily: 'sans-serif-medium'}}>Home</Text>
+          {/*<TouchableOpacity onPress={this.props.reportIssue} style={{color: "#FFF", borderWidth: 1, borderColor: "#FFF", borderRadius: 8, paddingLeft: 16, paddingRight: 16, alignItems: 'center', height: 48, alignSelf: 'flex-end'}}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Icon
+                name='flag'
+                type='font-awesome'
+                color={"#FFF"}
+                size={18} />
+              <Text style={{marginLeft: 10, fontSize: 16, color: "#FFF"}}>Report</Text>
+            </View>
+          </TouchableOpacity>*/}
       </View>
     );
   }

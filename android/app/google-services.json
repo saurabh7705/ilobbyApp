@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "951779765729-j5567npt8kpo2t24ih5lctvp1km32qun.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ilobbyapp",
+            "certificate_hash": "fa3a1071e234c662a1dbf426b22ebdd14c642458"
+          }
+        },
+        {
+          "client_id": "951779765729-ad66jab4vok8t8jkf69g3l8ku2abn5bt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ilobbyapp",
+            "certificate_hash": "69c1b14119df875acd89411cabd8ba157ac0df18"
+          }
+        },
+        {
           "client_id": "951779765729-h3vj1ndm9fksncud2bp01n7bsi7b9kc1.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -7,6 +7,7 @@ import { PieChart } from 'react-native-chart-kit';
 import { StackActions, NavigationActions } from 'react-navigation';
 import ViewMoreText from 'react-native-view-more-text';
 import Drawer from './Drawer';
+import Grid from 'react-native-grid-component';
 
 const MY_URL = `${BASE_URL}/site/list`
 const LOGOUT_URL = `${BASE_URL}/site/logout`
@@ -169,6 +170,33 @@ export default class Home extends React.Component {
   		}
   	}
 
+    getIcon = (issue) => {
+      const t = parseInt(issue.type);
+      if(t == 1) {
+        return "ambulance";
+      } else if(t == 2) {
+        return "home";
+      } else if(t == 3) {
+        return "eye";
+      } else if(t == 4) {
+        return "university";
+      } else if(t == 5) {
+        return "building";
+      } else if(t == 6) {
+        return "credit-card";
+      } else if(t == 7) {
+        return "users";
+      } else if(t == 8) {
+        return "user-times";
+      } else if(t == 9) {
+        return "thumbs-down";
+      } else if(t == 10) {
+        return "user-secret";
+      } else {
+        return "cog";
+      }
+    }
+
   	reportIssue = () => {
   		this.props.navigation.navigate("Issue", {
         onGoBack: this.refresh
@@ -250,7 +278,7 @@ export default class Home extends React.Component {
               source={{ uri: issue.image_url }}
             />
             <View style={{paddingLeft: 16, paddingRight: 16, paddingTop: 16}}>
-              {this.renderNodeSingle('cog', this.getName(issue))}
+              {this.renderNodeSingle(this.getIcon(issue), this.getName(issue))}
               {this.renderNodeSingle('map-marker', issue.location)}
               {this.renderNodeSingle('calendar', this.formatDate(issue.created_at))}
               { issue.notes ? this.renderNodeSingle('quote-left', issue.notes, false, true) : null }
@@ -295,7 +323,47 @@ export default class Home extends React.Component {
       })
     }
 
+    isDiff = (n) => {
+      return [0, 2, 5, 7, 8, 10].indexOf(n) >= 0;
+    }
+
+    renderType = (data, i) => {
+      let bgcolor = this.isDiff(i) ? "#f76054" : "#fb5345";
+      let textColor = this.state.issueType == data.value ? "gold" : "#FFF";
+      return (
+        <TouchableOpacity activeOpacity={0.8} onPress={() => {
+          if(data.value == "-1") {
+            this.reportIssue()
+          } else {
+            this.setState({issueType: data.value}, () => {
+              this.fetchIssues()  
+            })
+          }
+        }} key={i} style={{flex: 1, height: 70, alignItems: 'center', justifyContent: 'center', backgroundColor: bgcolor }}>
+          <View key={`view_${i}`} style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <Icon key={`icon_${i}`} type="font-awesome" name={data.icon} color={textColor} />
+            <Text key={`text_${i}`} style={{color: textColor, fontSize: 12, marginTop: 8}}>{data.name}</Text>
+          </View>
+        </TouchableOpacity>
+      );
+    }
+
     renderMain = () => {
+      const complaintTypes = [
+        { icon: "flag", name: "+ New", value: "-1"},
+        { icon: "globe", name: "Any", value: ""},
+        { icon: "ambulance", name: "Health", value: "1"},
+        { icon: "home", name: "Housing", value: "2"},
+        { icon: "eye", name: "Security", value: "3"},
+        { icon: "university", name: "Education", value: "4"},
+        { icon: "building", name: "Infrastructural", value: "5"},
+        { icon: "credit-card", name: "Economic", value: "6"},
+        { icon: "users", name: "Public Services", value: "7"},
+        { icon: "user-times", name: "Racial/Cultural", value: "8"},
+        { icon: "thumbs-down", name: "Corruption", value: "9"},
+        { icon: "user-secret", name: "Police", value: "10"}
+      ];
+
       if(!this.state.loaded) {
         return (
           <View style={styles.loaderContainer}>
@@ -305,78 +373,14 @@ export default class Home extends React.Component {
       } else {
         return (
           <ScrollView contentContainerStyle={styles.container}>
-            <View style={{marginBottom: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-              <View style={styles.picker}>
-                <Picker
-                  selectedValue={this.state.issueType}
-                  prompt="Issue Classification"
-                  onValueChange={(itemValue, itemIndex) =>
-                    this.setState({issueType: itemValue}, () => {
-                      this.fetchIssues()  
-                    })
-                  }>
-                  <Picker.Item label="All Complaints" value="" />
-                  <Picker.Item label="Health" value="1" />
-                  <Picker.Item label="Housing" value="2" />
-                  <Picker.Item label="Security" value="3" />
-                  <Picker.Item label="Education" value="4" />
-                  <Picker.Item label="Infrastructural" value="5" />
-                  <Picker.Item label="Economic" value="6" />
-                  <Picker.Item label="Public Services" value="7" />
-                  <Picker.Item label="Racial/Cultural" value="8" />
-                  <Picker.Item label="Corruption" value="9" />
-                  <Picker.Item label="Police" value="10" />
-                </Picker>
-              </View>
-              <TouchableOpacity onPress={this.reportIssue}>
-                <View style={{color: "#222", backgroundColor: "#FFF", borderWidth: 1, borderColor: "#f76054", borderRadius: 8, paddingLeft: 16, paddingRight: 16, flexDirection: 'row', alignItems: 'center', height: 48, alignSelf: 'center'}}>
-                  <Icon
-                    name='flag'
-                    type='font-awesome'
-                    color={"#f76054"}
-                    size={18} />
-                  <Text style={{marginLeft: 10, fontSize: 16, color: "#f76054"}}>Report</Text>
-                </View>
-              </TouchableOpacity>
+            <Grid
+              renderItem={this.renderType}
+              data={complaintTypes}
+              numColumns={4}
+            />
+            <View style={{padding: MARGIN}}>
+              {this.renderIssues()}
             </View>
-            {/*
-              this.state.issueType != "" ? 
-              <View>
-                <View style={{backgroundColor: "#f5f5f5", height: 1, marginBottom: 16, marginTop: 10, width: 100}}></View> 
-                <View style={{marginBottom: 12, marginLeft: -8, flexDirection: 'row'}}>
-                  <CheckBox
-                    size={16}
-                    title='My Zipcode'
-                    checked={this.state.zipcode}
-                    checkedIcon='dot-circle-o'
-                    uncheckedIcon='circle-o'
-                    onPress={() => this.changeCheckbox('zipcode')}
-                    containerStyle={styles.checkbox}
-                    textStyle={styles.checkTxt}
-                  />
-                  <CheckBox
-                    size={16}
-                    title='Male'
-                    checked={this.state.male}
-                    checkedIcon='dot-circle-o'
-                    uncheckedIcon='circle-o'
-                    onPress={() => this.changeCheckbox('male')}
-                    containerStyle={styles.checkbox}
-                    textStyle={styles.checkTxt}
-                  />
-                  <CheckBox
-                    size={16}
-                    title='Female'
-                    checked={this.state.female}
-                    checkedIcon='dot-circle-o'
-                    uncheckedIcon='circle-o'
-                    onPress={() => this.changeCheckbox('female')}
-                    containerStyle={styles.checkbox}
-                    textStyle={styles.checkTxt}
-                  />
-                </View>
-              </View> : null */}
-            {this.renderIssues()}
           </ScrollView>
         );
       }
@@ -384,7 +388,7 @@ export default class Home extends React.Component {
 
   	render() {
   		return (
-        <Drawer title="Complaints" navigation={this.props.navigation} logout={this.logout}>
+        <Drawer title="Complaints" navigation={this.props.navigation} logout={this.logout} reportIssue={this.reportIssue}>
           {this.renderMain()}
         </Drawer>
       )
@@ -398,8 +402,6 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   container: {
-    backgroundColor: '#fff',
-    padding: MARGIN_MAIN,
     backgroundColor: "#FFF"
   },
   picker: {

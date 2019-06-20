@@ -61,9 +61,9 @@ export default class Home extends React.Component {
   googleLogIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
-      const user = await GoogleSignin.signIn();
+      const userInfo = await GoogleSignin.signIn();
+      const user = userInfo.user;
       this.setState({email: user.email, password: user.id});
-
       fetch(LOGIN_URL, {
         method: 'POST',
         headers: {

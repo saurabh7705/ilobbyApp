@@ -11,7 +11,9 @@ export default class About extends React.Component {
   render() {
   	return (
   		<ScrollView contentContainerStyle={styles.container}>
-  			<Text>This is about us page</Text>
+  			<Text>
+          “kOMMUNITY” is envisioned as a platform for citizens to seek effective resolution of “kitchen table” issues and to act as a tool to facilitate bottoms up and more inclusive policy development by crowd-sourcing region specific local issues. This app will help you to make educated electoral decision by creating an innovative grade sheet for electoral candidates by recording how candidates have represented your local needs . It will also allow you to form community interest groups by facilitating engagement between users facing similar issues at a particular geographical locations and harness the power of "collective representation".
+        </Text>
   		</ScrollView>
   	);
   }

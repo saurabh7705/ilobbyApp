@@ -119,7 +119,7 @@ export default class Home extends React.Component {
 
   afterResponse = (response) => {
     if(response.status == "ERROR") {
-      this.showSnack(response.message[0], true);
+      this.showSnack(Array.isArray(response.message) ? response.message[0] : response.message, true);
     } else {
       this.showSnack("Profile updated successfully", false);
     }

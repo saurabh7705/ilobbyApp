@@ -33,7 +33,8 @@ export default class Home extends React.Component {
     zipcode: '',
     gender: 0,
     education_level: 1,
-    ethnicity: 1
+    ethnicity: 1,
+    simple: false
   }
 
   /*state = {
@@ -76,7 +77,7 @@ export default class Home extends React.Component {
         }),
       }).then((response) => response.json()).then((responseData) => {
         if(responseData.status == "ERROR") {
-          this.setState({loginType: 1});
+          this.setState({loginType: 2, simple: false});
         } else {
           this.afterResponse(responseData);
         }
@@ -204,9 +205,33 @@ export default class Home extends React.Component {
     }
   }
 
+  login = () => { 
+    if(this.validate()) { 
+
+       fetch(LOGIN_URL, { 
+        method: 'POST', 
+        headers: {  
+          Accept: 'application/json', 
+          'Content-Type': 'application/json', 
+        },  
+        body: JSON.stringify({  
+          email: this.state.email,  
+          password: this.state.password,  
+        }), 
+      })  
+      .then((response) => response.json())  
+      .then((responseData) => { 
+        this.afterResponse(responseData); 
+      })  
+
+     } else if(this.error) {  
+      this.showSnack(this.error, true); 
+    } 
+  }
+
   afterResponse = (response) => {
     if(response.status == "ERROR") {
-      this.showSnack(response.message[0], true);
+      this.showSnack(Array.isArray(response.message) ? response.message[0] : response.message, true);
     } else {
       this.storeToken(response.auth_token);
     }
@@ -225,6 +250,14 @@ export default class Home extends React.Component {
     this.setState({
       [n]: e.nativeEvent.text
     })
+  }
+
+  simpleLogin = () => {
+    this.setState({loginType: 1, simple: false})
+  }
+
+  simpleSignup = () => {
+    this.setState({loginType: 2, simple: true})
   }
 
   render() {
@@ -248,8 +281,8 @@ export default class Home extends React.Component {
       return (
         <ScrollView 
           keyboardShouldPersistTaps="always"
-          contentContainerStyle={[styles.container, this.state.loginType == 1 ? styles.whiteBack : {} ]}>
-          {this.state.email == "" ? (
+          contentContainerStyle={[styles.container, this.state.loginType != 0 ? styles.whiteBack : {} ]}>
+          {this.state.email == "" && this.state.loginType == 0 ? (
             <View style={{height: Dimensions.get('window').height, alignItems: 'center', padding: 64}}>
               <Image
                 source={img}
@@ -265,15 +298,40 @@ export default class Home extends React.Component {
                   <Text style={{marginLeft: 10, fontSize: 16, color: "#f76054"}}>Sign in with Google</Text>
                 </View>
               </TouchableOpacity>
+              <View style={{marginTop: 32, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                <TouchableOpacity onPress={this.simpleLogin}>
+                  <View style={{color: "#222", backgroundColor: "rgba(136, 56, 50, 0.05)", borderColor: "#883832", borderWidth: 1, borderRadius: 8, paddingLeft: 16, paddingRight: 16, flexDirection: 'row', alignItems: 'center', height: 50, alignSelf: 'center', marginRight: 8}}>
+                    <Text style={{fontSize: 16, color: "#883832"}}>Sign in</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={this.simpleSignup}>
+                  <View style={{color: "#222", backgroundColor: "rgba(136, 56, 50, 0.05)", borderColor: "#883832", borderWidth: 1, borderRadius: 8, paddingLeft: 16, paddingRight: 16, flexDirection: 'row', alignItems: 'center', height: 50, alignSelf: 'center', marginLeft: 8}}>
+                    <Text style={{fontSize: 16, color: "#883832"}}>Sign up</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
             </View>
           ) : null }
-          {this.state.email && this.state.loginType ? 
+          {this.state.loginType == 1 ?  
+            <View style={{alignItems: 'center'}}>
+              <Image
+                  source={img}
+                  style={{ width: 100, height: 100, marginBottom: MARGIN }}
+                />  
+              <Input placeholder='Email' leftIcon={{ ...iconStyle, name: 'envelope' }} keyboardType="email-address" style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.email} onChange={this.onChange.bind(this, 'email')} />  
+              <Input placeholder='Password' secureTextEntry={true} leftIcon={{ ...iconStyle, name: 'key' }} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.password} onChange={this.onChange.bind(this, 'password')} />  
+              <Button title="Submit" onPress={this.login} containerStyle={styles.btn} buttonStyle={styles.buttonStyle} />  
+            </View> 
+            : null }
+          {this.state.loginType == 2 ? 
               <View style={{alignItems: 'center'}}>
                 <Image
                   source={img}
                   style={{ width: 100, height: 100, marginBottom: MARGIN }}
                 />
-                <Input placeholder='Email' leftIcon={{ ...iconStyle, name: 'envelope' }} keyboardType="email-address" inputStyle={styles.inputStyle} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.email} onChange={this.onChange.bind(this, 'email')} disabled />
+                { !this.state.simple && this.state.email ? <Input placeholder='Email' leftIcon={{ ...iconStyle, name: 'envelope' }} keyboardType="email-address" inputStyle={styles.inputStyle} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.email} onChange={this.onChange.bind(this, 'email')} disabled /> : null }
+                { this.state.simple ? <Input placeholder='Email' leftIcon={{ ...iconStyle, name: 'envelope' }} keyboardType="email-address" inputStyle={styles.inputStyle} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.email} onChange={this.onChange.bind(this, 'email')} /> : null }
+                { this.state.simple ? <Input placeholder='Password' secureTextEntry={true} leftIcon={{ ...iconStyle, name: 'key' }} keyboardType="email-address" inputStyle={styles.inputStyle} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.password} onChange={this.onChange.bind(this, 'password')} /> : null }
                 <Input placeholder='Name' leftIcon={{ ...iconStyle, name: 'user' }} style={styles.input} inputStyle={styles.inputStyle} inputContainerStyle={styles.inputMain} value={this.state.name} onChange={this.onChange.bind(this, 'name')} />
                 <Input placeholder='Age' leftIcon={{ ...iconStyle, name: 'user-plus' }} keyboardType="numeric" inputStyle={styles.inputStyle} style={styles.input} inputContainerStyle={styles.inputMain} value={this.state.age} onChange={this.onChange.bind(this, 'age')} />
                 <ButtonGroup
